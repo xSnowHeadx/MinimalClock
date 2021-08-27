@@ -9,7 +9,18 @@ SnowHead Aug 2021
 ![Stand](pictures/stand.jpg)
 
 ## Introduction
-This is under contruction. Improvements and documentation will follow.
-The mechanic parts are described [here](https://thingiverse.com/thing:4931539)
+Shiura on [thingiverse](https://www.thingiverse.com/thing:4931539) designed an extremely simple but fascinating cylindric clock consisting out of only eight printed parts, a stepper motor and two PCB.<br>
+The original is controlled by an ESP32. The firmware here was adapted to an ESP8266 and for the use of the [WTA-timeservice](http://worldtimeapi.org) instead of NTP. So there normally are no firmware-modifications necessary to adapt the timezone and DST because they will be investigated out of the public IP of the request. For special cases (f.e. the use of a foreign proxy server) the timezone can be selected manually by replacing "ip" with the wished [timezone](http://worldtimeapi.org/timezone) in WTAClient.cpp.<br>
+<br>
+Used libraries:<br>
+- ArduinoJson 5.13.2<br>
+- DNSServer<br>
+- DoubleResetDetector<br>
+- ESP8266HTTPClient<br>
+- ESP8266WebServer<br>
+- ESP8266WiFi<br>
+- UrsADC<br>
+- WiFiManager<br> 
 
-See informations to ESP32-based version on [thingiverse](https://www.thingiverse.com/thing:4931539)
+Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
+See informations to ESP32-based original version on [here](https://www.thingiverse.com/thing:4931539). 
