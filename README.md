@@ -22,5 +22,7 @@ Used libraries:<br>
 - UrsADC<br>
 - WiFiManager<br> 
 
+The current version only works with arduino core 2.74 and below. Compatibility to newer cores is in progress.
+
 Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
-See informations to ESP32-based original version on [here](https://www.thingiverse.com/thing:4931539). 
+See informations to ESP32-based original version [here](https://www.thingiverse.com/thing:4931539). 
