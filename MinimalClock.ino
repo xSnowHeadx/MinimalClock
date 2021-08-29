@@ -55,8 +55,6 @@ void rotate(int step)
 	int i, j;
 	int delta = (step > 0) ? 1 : 7;
 #if DEBUG
-	unsigned long ts = millis();
-
 	Serial.print("rotating steps: ");
 	Serial.println(step);
 #endif
@@ -271,25 +269,9 @@ void setup()
 
 void loop()
 {
-	static int prevhour;
 	static int lastmin = -1;
 
-#if TOUCH_CONTROL
-	  if(touchRead(T8) < 15) { // GPIO33 pin
-	    rotate(10);
-	    return;
-	  }
-	  else if(touchRead(T6) < 15) { // GPIO14 pin
-	    rotate(-10);
-	    return;
-	  }
-	#endif
-
-#if (ROTATION_PERIOD_IN_SEC == 1)
-	while(((netEpoch = wtaClient.GetCurrentTime()) == locEpoch) || (!netEpoch))
-#else
 	while (!(netEpoch = wtaClient.GetCurrentTime()))
-#endif
 	{
 		delay(100);
 	}

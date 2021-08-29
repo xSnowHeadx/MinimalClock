@@ -11,7 +11,6 @@
 // settings
 #define EIGHT_DIGIT false     // true if your machine has 8 digits
 #define ORIGIN_SENSOR false   // true if you installed origin sensor
-#define TOUCH_CONTROL false   // true if you want to compensate origin by touch
 #define ORIGIN_COMPENSATION 50 // compensation of origin mark position
 #define ORIGIN_THRES 3500      // photo reflector sensor threshold
 #define DEBUG true
