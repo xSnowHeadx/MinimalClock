@@ -9,10 +9,11 @@
 #define DIGIT_H_
 
 // settings
-#define EIGHT_DIGIT false     // true if your machine has 8 digits
-#define ORIGIN_SENSOR false   // true if you installed origin sensor
-#define ORIGIN_COMPENSATION 50 // compensation of origin mark position
-#define ORIGIN_THRES 3500      // photo reflector sensor threshold
+#define EIGHT_DIGIT false     	// true if your machine has 8 digits
+#define ORIGIN_SENSOR false   	// true if you installed origin sensor
+#define ORIGIN_COMPENSATION 50 	// compensation of origin mark position
+#define ORIGIN_THRES 3500      	// photo reflector sensor threshold
+#define PRE_MOVE	1			// set to 1 to start move earlier to reach the end position at correct time
 #define DEBUG true
 
 #if EIGHT_DIGIT

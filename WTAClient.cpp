@@ -17,6 +17,8 @@ DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
 //=== WTA CLIENT ===
 #include "WTAClient.h"
+#include "digit.h"
+
 #define WTAServerName  "http://worldtimeapi.org/api/"
 HTTPClient http;
 String payload;

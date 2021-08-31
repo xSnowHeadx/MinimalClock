@@ -13,7 +13,15 @@ extern unsigned long askFrequency;
 #define STEPS_PER_ROTATION 4096L 		// steps of a single rotation of motor (motor: 64 steps/rotation, gear: 1/64)
 // wait for a single step of stepper
 #define HIGH_SPEED_DELAY	   3		// minimal delay for highest speed, delay is calculated from steps and period
-unsigned int delaytime;
+
+#if PRE_MOVE
+static unsigned long time_needed = 0;	// sum of time for next move
+Digit tcurrent =
+{ 0, 0, 0, 0 };		// store current digit position
+#endif
+bool real_move = true;					// move motor real
+static long currentPos;
+static long currentStep;
 
 //=== CLOCK ===
 WTAClient wtaClient;
@@ -25,6 +33,12 @@ unsigned long locEpoch = 0, netEpoch = 0, start_time;
 // ports used to control the stepper motor
 // if your motor rotate to the opposite direction,
 // change the order as {15, 13, 12, 14};
+// ESP	 Stepper
+// D5 -> IN1
+// D6 -> IN2
+// D7 -> IN3
+// D8 -> IN4
+
 int port[4] =
 { 14, 12, 13, 15 };
 
@@ -49,17 +63,26 @@ int seq[PHASES][4] =
 #endif
 		};
 
-void rotate(int step)
+void rotate(long step)
 {
 	static int phase = 0;
 	int i, j;
 	int delta = (step > 0) ? 1 : 7;
-#if DEBUG
-	Serial.print("rotating steps: ");
-	Serial.println(step);
-#endif
 
-	step = (step > 0) ? step : -step;
+#if DEBUG
+	if (real_move)
+	{
+		Serial.print("rotating steps: ");
+		Serial.println(step);
+	}
+#endif
+	step = labs(step);
+	if (!real_move)
+	{
+		time_needed += step * (unsigned long)HIGH_SPEED_DELAY;
+		return;
+	}
+
 	for (j = 0; j < step; j++)
 	{
 		phase = (phase + delta) % PHASES;
@@ -74,11 +97,6 @@ void rotate(int step)
 	for (i = 0; i < 4; i++)
 	{
 		digitalWrite(port[i], LOW);
-	}
-
-	if (digitalRead(0))
-	{
-		delay(100);
 	}
 }
 
@@ -101,9 +119,6 @@ void findOrigin(void)
 // avoid error accumuration of fractional part of 4096 / 10
 void rotStep(int s)
 {
-	static long currentPos;
-	static long currentStep;
-
 	currentPos += s;
 	long diff = currentPos * STEPS_PER_ROTATION / 10 - currentStep;
 	if (diff < 0)
@@ -117,13 +132,14 @@ void rotStep(int s)
 void printDigit(Digit d)
 {
 #if DEBUG
-  String s = "        ";
-  int i;
+	String s = "        ";
+	int i;
 
-  for(i = 0; i < DIGIT; i++) {
-    s.setCharAt(i, d.v[i] + '0');
-  }
-  Serial.println(s);
+	for (i = 0; i < DIGIT; i++)
+	{
+		s.setCharAt(i, d.v[i] + '0');
+	}
+	Serial.println(s);
 #endif
 }
 
@@ -149,8 +165,11 @@ Digit rotUp(Digit current, int digit, int num)
 		current.v[i] = (current.v[i - 1] + 9) % 10;
 	}
 #if DEBUG
-  Serial.print("up end : ");
-  printDigit(current);
+	if (real_move)
+	{
+		Serial.print("up end : ");
+		printDigit(current);
+	}
 #endif
 	return current;
 }
@@ -177,8 +196,11 @@ Digit rotDown(Digit current, int digit, int num)
 		current.v[i] = current.v[i - 1];
 	}
 #if DEBUG
-  Serial.print("down end : ");
-  printDigit(current);
+	if (real_move)
+	{
+		Serial.print("down end : ");
+		printDigit(current);
+	}
 #endif
 	return current;
 }
@@ -230,12 +252,16 @@ Digit setDigit(Digit current, int digit, int num)
 	return rotDigit(current, digit, num - cd);
 }
 
-Digit current = { 0, 0, 0, 0 };
+Digit current =
+{ 0, 0, 0, 0 };
 
 void setNumber(Digit n)
 {
-	Serial.print("Number: ");
-	printDigit(n);
+	if (real_move)
+	{
+		Serial.print("Number: ");
+		printDigit(n);
+	}
 	for (int i = 0; i < DIGIT; i++)
 	{
 		current = setDigit(current, i, n.v[i]);
@@ -270,15 +296,15 @@ void setup()
 void loop()
 {
 	static int lastmin = -1;
+	Digit n;
+	int i = 0;
+	struct tm *tmtime;
+	unsigned long tEpoch;
 
 	while (!(netEpoch = wtaClient.GetCurrentTime()))
 	{
 		delay(100);
 	}
-
-	Digit n;
-	int i = 0;
-	struct tm *tmtime;
 
 	askFrequency = 60 * 60 * 1000;
 	while (((netEpoch = wtaClient.GetCurrentTime()) == locEpoch) || (!netEpoch))
@@ -287,10 +313,16 @@ void loop()
 	}
 	if (netEpoch)
 	{
-		tmtime = localtime((const time_t*)&netEpoch);
-		wtaClient.PrintTime();
-		if(lastmin != tmtime->tm_min)
+#if PRE_MOVE
+		long tcurrentPos;
+		long tcurrentStep;
+
+		netEpoch += time_needed / 1000;
+#endif
+		tmtime = localtime((const time_t*) &netEpoch);
+		if (lastmin != tmtime->tm_min)
 		{
+			wtaClient.PrintTime();
 			lastmin = tmtime->tm_min;
 #if EIGHT_DIGIT
 		  	n.v[i++] = (tmtime->tm_mon + 1) / 10;
@@ -301,8 +333,37 @@ void loop()
 			n.v[i++] = tmtime->tm_hour / 10;
 			n.v[i++] = tmtime->tm_hour % 10;
 			n.v[i++] = tmtime->tm_min / 10;
-			n.v[i]   = tmtime->tm_min % 10;
+			n.v[i] = tmtime->tm_min % 10;
 			setNumber(n);
+#if PRE_MOVE
+			real_move = false;
+			time_needed = 0;
+			i = 0;
+			tcurrent = current;
+			tcurrentPos = currentPos;
+			tcurrentStep = currentStep;
+			tEpoch = netEpoch + 61;
+			tmtime = localtime((const time_t*) &tEpoch);
+#if EIGHT_DIGIT
+		  	n.v[i++] = (tmtime->tm_mon + 1) / 10;
+		  	n.v[i++] = (tmtime->tm_mon + 1) % 10;
+	  		n.v[i++] = tmtime->tm_mday / 10;
+	  		n.v[i++] = tmtime->tm_mday % 10;
+#endif
+			n.v[i++] = tmtime->tm_hour / 10;
+			n.v[i++] = tmtime->tm_hour % 10;
+			n.v[i++] = tmtime->tm_min / 10;
+			n.v[i] = tmtime->tm_min % 10;
+			setNumber(n);
+#if DEBUG
+			Serial.print("calculated time [ms]: ");
+			Serial.println(time_needed);
+#endif
+			current = tcurrent;
+			currentPos = tcurrentPos;
+			currentStep = tcurrentStep;
+			real_move = true;
+#endif
 		}
 	}
 	else
