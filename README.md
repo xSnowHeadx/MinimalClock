@@ -26,9 +26,9 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 </tr><tr> 
 <td>DEBUG</td><td>true for additional debug messages on serial console</td>
 </tr> 
-</table>
-<br>
-## Used libraries: <br> 
+</table><br>
+## Used libraries:
+<br> 
 - ArduinoJson 5.13.2<br>
 - DNSServer<br>
 - DoubleResetDetector<br>
@@ -37,8 +37,7 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 - ESP8266WiFi<br>
 - UrsADC<br>
 - WiFiManager<br> 
-
-The current version only works with arduino core 2.74 and below. Compatibility to newer cores is in progress.
-
-Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
+<br>
+The current version only works with arduino core 2.74 and below. Compatibility to newer cores is in progress.<br><br>
+Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br><br>
 See informations to ESP32-based original version [here](https://www.thingiverse.com/thing:4931539). 
