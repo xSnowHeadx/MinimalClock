@@ -27,7 +27,8 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 <td>DEBUG</td><td>true for additional debug messages on serial console</td>
 </tr> 
 </table>
-## Used libraries: 
+<br>
+## Used libraries: <br> 
 - ArduinoJson 5.13.2<br>
 - DNSServer<br>
 - DoubleResetDetector<br>
