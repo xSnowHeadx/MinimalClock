@@ -17,10 +17,12 @@ DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
 //=== WTA CLIENT ===
 #include "WTAClient.h"
+#include "WiFiClient.h"
 #include "digit.h"
 
 #define WTAServerName  "http://worldtimeapi.org/api/"
 HTTPClient http;
+WiFiClient wifiClient;
 String payload;
 bool military = true;
 
@@ -126,7 +128,7 @@ void WTAClient::AskCurrentEpoch()
 	Serial.println("AskCurrentEpoch called");
 
 	strcat(url, timezone);
-	http.begin(url);
+	http.begin(wifiClient, url);
 	httpCode = http.GET();
 
 	payload = "";

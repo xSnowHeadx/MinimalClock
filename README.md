@@ -38,7 +38,5 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 <td>DEBUG</td><td>true for additional debug messages on serial console</td>
 </tr> 
 </table><br>
-The current version only works with arduino core 2.74 and below. Compatibility to newer cores is in progress.
-
 Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
 See informations to ESP32-based original version [here](https://www.thingiverse.com/thing:4931539). 
