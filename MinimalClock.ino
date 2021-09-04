@@ -25,7 +25,7 @@ static long currentStep;
 
 //=== CLOCK ===
 WTAClient wtaClient;
-unsigned long locEpoch = 0, netEpoch = 0, start_time;
+time_t locEpoch = 0, netEpoch = 0;
 
 #define LED		16
 #define PHASES  8
@@ -39,8 +39,9 @@ unsigned long locEpoch = 0, netEpoch = 0, start_time;
 // D7 -> IN3
 // D8 -> IN4
 
-int port[4] =
-{ 14, 12, 13, 15 };
+int port[4] = { 14, 12, 13, 15 };
+Digit current = { 0 };
+Digit timedig = { 0 };
 
 int seq[PHASES][4] =
 #if (PHASES == 4)
@@ -77,12 +78,13 @@ void rotate(long step)
 	}
 #endif
 	step = labs(step);
+#if PRE_MOVE
 	if (!real_move)
 	{
-		time_needed += step * (unsigned long)HIGH_SPEED_DELAY;
+		time_needed += (step * ((unsigned long)HIGH_SPEED_DELAY) + 330UL);
 		return;
 	}
-
+#endif
 	for (j = 0; j < step; j++)
 	{
 		phase = (phase + delta) % PHASES;
@@ -252,9 +254,6 @@ Digit setDigit(Digit current, int digit, int num)
 	return rotDigit(current, digit, num - cd);
 }
 
-Digit current =
-{ 0, 0, 0, 0 };
-
 void setNumber(Digit n)
 {
 	if (real_move)
@@ -270,8 +269,6 @@ void setNumber(Digit n)
 
 void setup()
 {
-	start_time = millis();
-
 	pinMode(port[0], OUTPUT);
 	pinMode(port[1], OUTPUT);
 	pinMode(port[2], OUTPUT);
@@ -296,15 +293,7 @@ void setup()
 void loop()
 {
 	static int lastmin = -1;
-	Digit n;
-	int i = 0;
 	struct tm *tmtime;
-	unsigned long tEpoch;
-
-	while (!(netEpoch = wtaClient.GetCurrentTime()))
-	{
-		delay(100);
-	}
 
 	askFrequency = 60 * 60 * 1000;
 	while (((netEpoch = wtaClient.GetCurrentTime()) == locEpoch) || (!netEpoch))
@@ -316,45 +305,48 @@ void loop()
 #if PRE_MOVE
 		long tcurrentPos;
 		long tcurrentStep;
+		time_t tEpoch;
 
-		netEpoch += time_needed / 1000;
+		netEpoch += ((time_needed / 1000) + 1);
 #endif
-		tmtime = localtime((const time_t*) &netEpoch);
+		tmtime = localtime(&netEpoch);
 		if (lastmin != tmtime->tm_min)
 		{
+			int j = 0;
+
 			wtaClient.PrintTime();
 			lastmin = tmtime->tm_min;
 #if EIGHT_DIGIT
-		  	n.v[i++] = (tmtime->tm_mon + 1) / 10;
-		  	n.v[i++] = (tmtime->tm_mon + 1) % 10;
-	  		n.v[i++] = tmtime->tm_mday / 10;
-	  		n.v[i++] = tmtime->tm_mday % 10;
+			timedig.v[j++] = (tmtime->tm_mon + 1) / 10;
+			timedig.v[j++] = (tmtime->tm_mon + 1) % 10;
+			timedig.v[j++] = tmtime->tm_mday / 10;
+			timedig.v[j++] = tmtime->tm_mday % 10;
 #endif
-			n.v[i++] = tmtime->tm_hour / 10;
-			n.v[i++] = tmtime->tm_hour % 10;
-			n.v[i++] = tmtime->tm_min / 10;
-			n.v[i] = tmtime->tm_min % 10;
-			setNumber(n);
+			timedig.v[j++] = tmtime->tm_hour / 10;
+			timedig.v[j++] = tmtime->tm_hour % 10;
+			timedig.v[j++] = tmtime->tm_min / 10;
+			timedig.v[j] = tmtime->tm_min % 10;
+			setNumber(timedig);
 #if PRE_MOVE
 			real_move = false;
 			time_needed = 0;
-			i = 0;
+			j = 0;
 			tcurrent = current;
 			tcurrentPos = currentPos;
 			tcurrentStep = currentStep;
 			tEpoch = netEpoch + 61;
-			tmtime = localtime((const time_t*) &tEpoch);
+			tmtime = localtime(&tEpoch);
 #if EIGHT_DIGIT
-		  	n.v[i++] = (tmtime->tm_mon + 1) / 10;
-		  	n.v[i++] = (tmtime->tm_mon + 1) % 10;
-	  		n.v[i++] = tmtime->tm_mday / 10;
-	  		n.v[i++] = tmtime->tm_mday % 10;
+			timedig.v[j++] = (tmtime->tm_mon + 1) / 10;
+			timedig.v[j++] = (tmtime->tm_mon + 1) % 10;
+			timedig.v[j++] = tmtime->tm_mday / 10;
+			timedig.v[j++] = tmtime->tm_mday % 10;
 #endif
-			n.v[i++] = tmtime->tm_hour / 10;
-			n.v[i++] = tmtime->tm_hour % 10;
-			n.v[i++] = tmtime->tm_min / 10;
-			n.v[i] = tmtime->tm_min % 10;
-			setNumber(n);
+			timedig.v[j++] = tmtime->tm_hour / 10;
+			timedig.v[j++] = tmtime->tm_hour % 10;
+			timedig.v[j++] = tmtime->tm_min / 10;
+			timedig.v[j] = tmtime->tm_min % 10;
+			setNumber(timedig);
 #if DEBUG
 			Serial.print("calculated time [ms]: ");
 			Serial.println(time_needed);
@@ -368,7 +360,7 @@ void loop()
 	}
 	else
 	{
-		delay(1000);
+		delay(100);
 	}
 	locEpoch = netEpoch;
 }
