@@ -81,7 +81,7 @@ void rotate(long step)
 #if PRE_MOVE
 	if (!real_move)
 	{
-		time_needed += (step * ((unsigned long)HIGH_SPEED_DELAY) + 330UL);
+		time_needed += (step * ((unsigned long)HIGH_SPEED_DELAY));
 		return;
 	}
 #endif
@@ -307,7 +307,7 @@ void loop()
 		long tcurrentStep;
 		time_t tEpoch;
 
-		netEpoch += ((time_needed / 1000) + 1);
+		netEpoch += ((time_needed + 500) / 1000);
 #endif
 		tmtime = localtime(&netEpoch);
 		if (lastmin != tmtime->tm_min)
