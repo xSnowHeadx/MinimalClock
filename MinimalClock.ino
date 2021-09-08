@@ -104,13 +104,33 @@ void rotate(long step)
 
 void findOrigin(void)
 {
-	while (analogRead(34) > ORIGIN_THRES)
+int adcval;
+
+#if ORIGIN_BRIGHTMARK
+	while ((adcval = analogRead(PIN_A0)) < ORIGIN_THRES)
+#else
+	while ((adcval = analogRead(PIN_A0)) > ORIGIN_THRES)
+#endif
 	{ // if origin is sensed, back a bit
 		rotate(-1);
+#if DEBUG
+		Serial.print("ADC: ");
+		Serial.print(adcval);
+		Serial.print(" ");
+#endif
 	}
-	while (analogRead(34) < ORIGIN_THRES)
+#if ORIGIN_BRIGHTMARK
+	while ((adcval = analogRead(PIN_A0)) > ORIGIN_THRES)
+#else
+	while ((adcval = analogRead(PIN_A0)) < ORIGIN_THRES)
+#endif
 	{ // find origin
 		rotate(1);
+#if DEBUG
+		Serial.print("ADC: ");
+		Serial.print(adcval);
+		Serial.print(" ");
+#endif
 	}
 	rotate(ORIGIN_COMPENSATION);
 	delay(1000);
