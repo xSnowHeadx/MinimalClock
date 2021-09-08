@@ -24,6 +24,7 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 
 ## Switches in digit.h
 <table>
+<body>
 <tr>
 <td>EIGHT_DIGIT</td><td>true if you use a clock with 8 cylinders</td>
 </tr><tr> 
@@ -31,12 +32,14 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 </tr><tr> 
 <td>ORIGIN_COMPENSATION</td><td>(default 50) compensation of origin mark position</td>
 </tr><tr> 
+<td>ORIGIN_BRIGHTMARK</td><td>true if origin mark is brighter than background</td>
+</tr><tr> 
 <td>ORIGIN_THRES</td><td>(default 3500) photo reflector sensor ADC threshold</td>
 </tr><tr> 
 <td>PRE_MOVE</td><td>true to start cylinder movement earlier to reach the target position just in time</td>
 </tr><tr> 
 <td>DEBUG</td><td>true for additional debug messages on serial console</td>
 </tr> 
-</table><br>
+</body></table>
 Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
 See informations to ESP32-based original version [here](https://www.thingiverse.com/thing:4931539). 
