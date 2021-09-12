@@ -19,7 +19,6 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 - ESP8266HTTPClient<br>
 - ESP8266WebServer<br>
 - ESP8266WiFi<br>
-- UrsADC<br>
 - WiFiManager<br> 
 
 ## Switches in digit.h
