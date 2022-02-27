@@ -41,4 +41,4 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 </tr> 
 </body></table>
 Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
-See informations to ESP32-based original version [here](https://www.thingiverse.com/thing:4931539). 
+See informations to ESP32-based original version [here](https://www.prusaprinters.org/prints/140111-some-modifications-for-minimal-mechanical-digital-). 
