@@ -315,7 +315,6 @@ void loop()
 	static int lastmin = -1;
 	struct tm *tmtime;
 
-	bool test = wtaClient.GetDST();
 	askFrequency = 60 * 60 * 1000;
 	while (((netEpoch = wtaClient.GetCurrentTime()) == locEpoch) || (!netEpoch))
 	{
