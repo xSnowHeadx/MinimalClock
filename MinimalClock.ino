@@ -250,8 +250,7 @@ Digit rotDigit(Digit current, int digit, int num)
 // set single digit to the specified number
 Digit setDigit(Digit current, int digit, int num)
 {
-	int cd = current.v[digit];
-	int pd = current.v[digit - 1];
+	int pd, cd = current.v[digit];
 
 	if (!digit)
 	{ // most significant digit
@@ -264,6 +263,10 @@ Digit setDigit(Digit current, int digit, int num)
 #else
 		pd = DISP_POS;
 #endif
+	}
+	else
+	{
+		pd = current.v[digit - 1];
 	}
 	if (cd == num)
 		return current;
