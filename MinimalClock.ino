@@ -39,9 +39,12 @@ time_t locEpoch = 0, netEpoch = 0;
 // D7 -> IN3
 // D8 -> IN4
 
-int port[4] = { 14, 12, 13, 15 };
-Digit current = { 0 };
-Digit timedig = { 0 };
+int port[4] =
+{ 14, 12, 13, 15 };
+Digit current =
+{ 0 };
+Digit timedig =
+{ 0 };
 
 int seq[PHASES][4] =
 #if (PHASES == 4)
@@ -52,17 +55,17 @@ int seq[PHASES][4] =
 { HIGH, LOW,  LOW,  HIGH },
 #else
 // sequence of stepper motor control
-		{
-		{ LOW, HIGH, HIGH, LOW },
-		{ LOW, LOW, HIGH, LOW },
-		{ LOW, LOW, HIGH, HIGH },
-		{ LOW, LOW, LOW, HIGH },
-		{ HIGH, LOW, LOW, HIGH },
-		{ HIGH, LOW, LOW, LOW },
-		{ HIGH, HIGH, LOW, LOW },
-		{ LOW, HIGH, LOW, LOW },
+	{
+	{ LOW, HIGH, HIGH, LOW },
+	{ LOW, LOW, HIGH, LOW },
+	{ LOW, LOW, HIGH, HIGH },
+	{ LOW, LOW, LOW, HIGH },
+	{ HIGH, LOW, LOW, HIGH },
+	{ HIGH, LOW, LOW, LOW },
+	{ HIGH, HIGH, LOW, LOW },
+	{ LOW, HIGH, LOW, LOW },
 #endif
-		};
+	};
 
 void rotate(long step)
 {
@@ -81,7 +84,7 @@ void rotate(long step)
 #if PRE_MOVE
 	if (!real_move)
 	{
-		time_needed += (step * ((unsigned long)HIGH_SPEED_DELAY));
+		time_needed += (step * ((unsigned long) HIGH_SPEED_DELAY));
 		return;
 	}
 #endif
@@ -102,9 +105,10 @@ void rotate(long step)
 	}
 }
 
+#if ORIGIN_SENSOR
 void findOrigin(void)
 {
-int adcval;
+	int adcval;
 
 #if ORIGIN_BRIGHTMARK
 	while ((adcval = analogRead(PIN_A0)) < ORIGIN_THRES)
@@ -136,8 +140,9 @@ int adcval;
 	delay(1000);
 }
 
-#define KILL_BACKLASH 10
+#endif
 
+#define KILL_BACKLASH 10
 // avoid error accumuration of fractional part of 4096 / 10
 void rotStep(int s)
 {
@@ -245,32 +250,37 @@ Digit rotDigit(Digit current, int digit, int num)
 // set single digit to the specified number
 Digit setDigit(Digit current, int digit, int num)
 {
-	if (digit == 0)
+	int cd = current.v[digit];
+	int pd = current.v[digit - 1];
+
+	if (!digit)
 	{ // most significant digit
+#if ! HAS_ENDSTOP
 		int rot = num - current.v[0];
 		// use decreasing rotation because following digits tend to be 000 or 999
 		if (rot > 1)
-			rot -= 10;
+			rot -= POSITION;
 		return rotDigit(current, digit, rot);
+#else
+		pd = DISP_POS;
+#endif
 	}
-	int cd = current.v[digit];
-	int pd = current.v[digit - 1];
 	if (cd == num)
 		return current;
 
 	// check if increasing rotation is possible
 	int n2 = num;
 	if (n2 < cd)
-		n2 += 10;
+		n2 += POSITION;
 	if (pd < cd)
-		pd += 10;
+		pd += POSITION;
 	if (pd <= cd || pd > n2)
 	{
 		return rotDigit(current, digit, n2 - cd);
 	}
 	// if not, do decrease rotation
 	if (num > cd)
-		cd += 10;
+		cd += POSITION;
 	return rotDigit(current, digit, num - cd);
 }
 
@@ -304,10 +314,15 @@ void setup()
 	askFrequency = 50;
 
 #if ORIGIN_SENSOR
-  findOrigin();
+	findOrigin();
 #endif
 
+#if HAS_ENDSTOP
+	rotate(STEPS_PER_ROTATION * DIGIT); // reset all digits using physical end stop
+	rotate(ENDSTOP_RELEASE * DIGIT); // release pushing force to align all digits better
+#else
 	rotate(STEPS_PER_ROTATION * (DIGIT - 1));
+#endif
 }
 
 void loop()
