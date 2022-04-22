@@ -32,7 +32,7 @@ time_t locEpoch = 0, netEpoch = 0;
 
 // ports used to control the stepper motor
 // if your motor rotate to the opposite direction,
-// change the order as {15, 13, 12, 14};
+// change the order to {15, 13, 12, 14};
 // ESP	 Stepper
 // D5 -> IN1
 // D6 -> IN2
