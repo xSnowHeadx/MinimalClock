@@ -27,6 +27,12 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 <tr>
 <td>EIGHT_DIGIT</td><td>true if you use a clock with 8 cylinders</td>
 </tr><tr> 
+<td>HAS_ENDSTOP</td><td>true if you use the new clock version with end stops</td>
+</tr><tr> 
+<td>ENDSTOP_RELEASE</td><td>(default -15) release steps after reaching end stop</td>
+</tr><tr> 
+<td>DISP_POS</td><td>(default 0) time visible in front view (0) or top view (1) (with endstops only)</td>
+</tr><tr> 
 <td>ORIGIN_SENSOR</td><td>true if origin sensor is installed</td>
 </tr><tr> 
 <td>ORIGIN_COMPENSATION</td><td>(default 50) compensation of origin mark position</td>
@@ -41,4 +47,4 @@ The original is controlled by an ESP32. The firmware here was adapted to an ESP8
 </tr> 
 </body></table>
 Some modified mechanic parts are described [here](https://thingiverse.com/thing:4941138)<br>
-See informations to ESP32-based original version [here](https://www.prusaprinters.org/prints/140111-some-modifications-for-minimal-mechanical-digital-). 
+See informations to ESP32-based original version [here](https://www.prusaprinters.org/prints/140111-some-modifications-for-minimal-mechanical-digital). 
